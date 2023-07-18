@@ -1,0 +1,32 @@
+# docker-compose.yml
+version: "3.7"
+services:
+  # Redis for caching
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+      
+  # Image building before deployment
+  _build:
+    image: ids/codesample
+    container_name: build
+    command: ['echo', 'Image Build Completed!!']
+    build:
+      context: ./
+      dockerfile: Dockerfile
+      target: app_php
+
+  # App Servers
+  server_1:
+    image: ids/codesample
+    container_name: server_1
+    # restart: unless-stopped
+    working_dir: /srv/app
+    command: php server.php
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./:/srv/app
+    depends_on:
+      - _build

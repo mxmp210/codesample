@@ -1,0 +1,15 @@
+{
+    "verbose": true,
+    "ignore": [
+        "**/test/**",
+        "**/docs/**",
+        "**/fixtures/**",
+        ".git",
+        ".idea"
+    ],
+    "execMap": {
+      "php": "php"
+    },
+    "ext": "php",
+    "restartable": "r"
+  }

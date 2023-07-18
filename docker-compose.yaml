@@ -1,0 +1,58 @@
+# docker-compose.yml
+version: "3.7"
+services:
+
+  # Nginx Proxy
+  app:
+    container_name: app
+    image: nginx:1.25.1-alpine-slim
+    ports:
+      - "8080:80"
+      #- "443:443"
+    # restart: unless-stopped
+    volumes:
+      # - ./.docker/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./.docker/nginx:/etc/nginx/conf.d:ro
+
+  # Redis for caching
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+
+  # Image building before deployment
+  _build:
+    image: ids/codesample
+    container_name: build
+    command: ['echo', 'Image Build Completed!!']
+    build:
+      context: ./
+      dockerfile: Dockerfile
+      target: app_php
+
+  # App Servers
+  server_1: &appService
+    image: ids/codesample
+    container_name: server_1
+    # restart: unless-stopped
+    working_dir: /srv/app
+    command: php server.php
+    volumes:
+      - ./:/srv/app
+    depends_on:
+      - _build
+      
+  server_2:
+    <<: *appService
+    container_name: server_2
+  
+  server_3:
+    <<: *appService
+    container_name: server_3
+
+  server_4:
+    <<: *appService
+    container_name: server_4
+
+  # volumes:
+  #   nginx_cache:
